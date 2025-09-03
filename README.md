@@ -1,0 +1,1 @@
+This project explores daily retail sales data (2015–2018) to identify trends, visualize sub category performance, and forecast future sales using a simple naive forecasting model. It demonstrates data cleaning, aggregation, time series analysis, visualization, and basic model evaluation skills in Python.
