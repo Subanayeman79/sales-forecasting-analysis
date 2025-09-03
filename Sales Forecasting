@@ -1,0 +1,124 @@
+Sales Forecasting & Trend Analysis
+
+1. Project Overview
+- This notebook analyzes daily sales data from 2015 to 2018.
+- Goals:
+-  Explore overall sales trends and sub-category trends
+-  Compute 7-day moving averages
+-  Create a baseline forecast using a naive model
+-  Evaluate the forecast performance
+
+2. Import Libraries
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.metrics import mean_squared_error, mean_absolute_error
+
+3. Load Dataset
+df = pd.read_csv("../data/train.csv")
+
+- Preview first 5 rows
+print("First 5 rows of the dataset:")
+display(df.head())
+
+- Dataset info
+print("\nDataset Info:")
+df.info()
+
+- Quick stats for numeric columns
+print("\nSales Summary:")
+display(df['Sales'].describe())
+
+ 4. Data Preprocessing
+- Convert 'Order Date' to datetime
+df['Order Date'] = pd.to_datetime(df['Order Date'], dayfirst=True, errors='coerce')
+
+- Check missing dates
+missing_dates = df['Order Date'].isna().sum()
+print(f"\nMissing after datetime conversion: {missing_dates}")
+
+- Sort chronologically
+df = df.sort_values('Order Date').reset_index(drop=True)
+
+- Corrected date range
+print(f"Corrected Date Range: {df['Order Date'].min()} to {df['Order Date'].max()}")
+
+- 
+- 5. Aggregate Daily Sales
+
+daily_sales = df.groupby('Order Date')['Sales'].sum()
+
+- Create full date range and fill missing days with 0
+full_dates = pd.date_range(start=df['Order Date'].min(), end=df['Order Date'].max())
+daily_sales = daily_sales.reindex(full_dates, fill_value=0)
+
+- Reset index
+daily_sales = daily_sales.reset_index().rename(columns={'index': 'Order Date', 0: 'Sales'})
+
+print(f"\nNumber of days after reindexing: {len(daily_sales)}")
+display(daily_sales.head(10))
+
+- 6. Sub-Category Sales Analysis
+daily_subcat_sales = df.groupby(['Order Date', 'Sub-Category'])['Sales'].sum().reset_index()
+
+- Pick first 5 sub-categories to keep chart readable
+sub_categories = daily_subcat_sales['Sub-Category'].unique()[:5]
+
+plt.figure(figsize=(14,7))
+for subcat in sub_categories:
+    subset = daily_subcat_sales[daily_subcat_sales['Sub-Category'] == subcat].copy()
+    subset['7D_MA'] = subset['Sales'].rolling(window=7).mean()
+    plt.plot(subset['Order Date'], subset['7D_MA'], label=subcat)
+
+plt.title('7-Day Moving Average of Daily Sales per Sub-Category (Sample)')
+plt.xlabel('Order Date')
+plt.ylabel('Sales (7-Day MA)')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+- 7. Train-Test Split (Cutoff Year)
+- Train: all data before 2018
+train = daily_sales[daily_sales['Order Date'].dt.year < 2018]
+- Test: all data in 2018
+test = daily_sales[daily_sales['Order Date'].dt.year == 2018]
+
+print(f"\nTraining set size: {len(train)}")
+print(f"Testing set size: {len(test)}")
+print(f"Training set date range: {train['Order Date'].min()} to {train['Order Date'].max()}")
+print(f"Testing set date range: {test['Order Date'].min()} to {test['Order Date'].max()}")
+
+- 8. Naive Forecast
+- Repeat last sales of train for all test days
+naive_forecast = np.repeat(train['Sales'].iloc[-1], len(test))
+test = test.copy()
+test['Naive_Forecast'] = naive_forecast
+
+- Preview
+display(test.head(10))
+
+- 9. Plot Forecast vs Actual
+plt.figure(figsize=(14,6))
+plt.plot(train['Order Date'], train['Sales'], label='Train Sales')
+plt.plot(test['Order Date'], test['Sales'], label='Actual Sales', color='green')
+plt.plot(test['Order Date'], test['Naive_Forecast'], label='Naive Forecast', color='red', linestyle='--')
+plt.xlabel('Date')
+plt.ylabel('Sales')
+plt.title('Naive Forecast vs Actual Sales')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+- 10. Evaluate Forecast
+
+mse = mean_squared_error(test['Sales'], test['Naive_Forecast'])
+mae = mean_absolute_error(test['Sales'], test['Naive_Forecast'])
+
+print(f"Naive Forecast MSE: {mse}")
+print(f"Naive Forecast MAE: {mae}")
+
+- 11. Next Steps / Recommendations
+- Implement advanced forecasting models (ARIMA, Prophet, LSTM)
+- Explore sub-category level forecasting
+- Visualize trends with interactive dashboards
