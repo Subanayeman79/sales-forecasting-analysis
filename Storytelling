@@ -1,0 +1,17 @@
+Context:
+I worked on a retail dataset I found on Kaggle. The goal was straightforward but important: clean up the data, explore it, and find trends or anomalies that could help the business make smarter decisions.
+
+What I Did:
+I used Python and the pandas library to check the health of the data. I cleaned up missing values and duplicates, removed irrelevant columns, and made sure each column was in the right format. Once the data was clean, I ran exploratory analysis and created visualizations to uncover patterns.
+
+Challenges:
+One of the tricky parts was deciding which columns were actually useful since not everything in the dataset mattered. Dealing with missing or inconsistent data was also a challenge, but correcting these issues was essential for reliable analysis.
+
+What I Found:
+After cleaning and analyzing the data, I noticed that some product categories were consistently underperforming, while others had spikes in certain months. I also spotted some pricing anomalies that suggested possible reporting errors.
+
+Recommendations:
+I suggested the company look into the pricing issues to make sure reporting was accurate and focus marketing efforts on underperforming categories during peak months. Taking these steps could help increase revenue and improve operational efficiency.
+
+What I Learned:
+This project reinforced the importance of cleaning data before jumping into analysis. I also improved at turning raw data into insights that stakeholders can actually use, while sharpening my skills in Python, visualization, and telling a story with data.
